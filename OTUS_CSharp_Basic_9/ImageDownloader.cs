@@ -1,7 +1,6 @@
 ﻿public class ImageDownloader
 {
-
-    HttpClient client = new HttpClient
+    private readonly HttpClient _client = new HttpClient
     {
         MaxResponseContentBufferSize = 1_000_000_000
     };
@@ -15,12 +14,11 @@
         {
             this.DownloadStarted?.Invoke(URL);
 
-            HttpResponseMessage response = await client.GetAsync(URL, cancellationToken);
+            HttpResponseMessage response = await _client.GetAsync(URL, cancellationToken);
             byte[] content = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-            using (var fs = new FileStream(Environment.CurrentDirectory + "\\" + fileName, FileMode.Create))
-            {
-                await response.Content.CopyToAsync(fs);
-            }
+            using var fs = new FileStream(Path.Combine(Environment.CurrentDirectory, fileName), FileMode.Create);
+            await response.Content.CopyToAsync(fs, cancellationToken);
+
             this.DownloadCompleted?.Invoke(fileName, content.Length);
             return true;
         }
@@ -33,6 +31,10 @@
         {
             Console.WriteLine($"Ошибка при загрузке: {ex.Message}");
             return false;
+        }
+        finally
+        {
+            this._client.Dispose();
         }
     }
 }
