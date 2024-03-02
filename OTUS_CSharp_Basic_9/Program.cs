@@ -22,6 +22,7 @@ class Program
             imageDownloader.DownloadCompleted += (string fileName, int fileSize) => { Console.WriteLine($"Скачал файл: " + fileName + ". Размер: " + fileSize); };
             var downloadTask = imageDownloader.DownloadAsync("https://img.dummy-image-generator.com/abstract/dummy-4000x4000-Stones.jpg", $"bigimage_{i}.jpg", token);
             downloadTasks.Add(downloadTask);
+            
         }
 
         while (true)
@@ -45,6 +46,7 @@ class Program
             }
             if (keyInfo.Key == ConsoleKey.X)
             {
+                
                 break;
             }
         }
@@ -52,6 +54,7 @@ class Program
         foreach (var downloadTask in downloadTasks)
         {
             Console.WriteLine($"TaskID =\"{downloadTask.Id}\" Result: {downloadTask.Result};");
+            downloadTask.Dispose();
         }
     }
 

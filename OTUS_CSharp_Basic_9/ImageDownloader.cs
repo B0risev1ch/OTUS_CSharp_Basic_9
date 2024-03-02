@@ -1,4 +1,4 @@
-﻿public class ImageDownloader
+﻿public class ImageDownloader : IDisposable
 {
     private readonly HttpClient _client = new HttpClient
     {
@@ -32,9 +32,9 @@
             Console.WriteLine($"Ошибка при загрузке: {ex.Message}");
             return false;
         }
-        finally
-        {
-            this._client.Dispose();
-        }
+    }
+    void  IDisposable.Dispose()
+    {
+        _client.Dispose();
     }
 }
