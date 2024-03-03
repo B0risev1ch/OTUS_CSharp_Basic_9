@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -11,18 +12,17 @@ class Program
 {
     static async Task Main()
     {
-        List<Task<bool>> downloadTasks = new();
+        var downloadTasks = new List<Task<bool>>();
         using var cts = new CancellationTokenSource();
+        using var imageDownloader = new ImageDownloader();
         var token = cts.Token;
+        imageDownloader.DownloadStarted += (string URL) => { Console.WriteLine($"Начал скачивать файл: " + URL); };
+        imageDownloader.DownloadCompleted += (string fileName, int fileSize) => { Console.WriteLine($"Скачал файл: " + fileName + ". Размер: " + fileSize); };
 
         for (int i = 1; i <= 10; i++)
         {
-            ImageDownloader imageDownloader = new();
-            imageDownloader.DownloadStarted += (string URL) => { Console.WriteLine($"Начал скачивать {i}-й файл: " + URL); };
-            imageDownloader.DownloadCompleted += (string fileName, int fileSize) => { Console.WriteLine($"Скачал файл: " + fileName + ". Размер: " + fileSize); };
             var downloadTask = imageDownloader.DownloadAsync("https://img.dummy-image-generator.com/abstract/dummy-4000x4000-Stones.jpg", $"bigimage_{i}.jpg", token);
             downloadTasks.Add(downloadTask);
-            
         }
 
         while (true)
@@ -37,7 +37,7 @@ class Program
             }
             else
             {
-                Console.WriteLine($"Был запрос отмены?: {cts.IsCancellationRequested}\nСостояние загрузки:\n" );
+                Console.WriteLine($"Был запрос отмены?: {cts.IsCancellationRequested}\nСостояние загрузки:\n");
 
                 foreach (var downloadTask in downloadTasks)
                 {
@@ -46,7 +46,6 @@ class Program
             }
             if (keyInfo.Key == ConsoleKey.X)
             {
-                
                 break;
             }
         }

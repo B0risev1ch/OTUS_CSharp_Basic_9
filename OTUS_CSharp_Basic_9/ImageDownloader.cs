@@ -14,8 +14,8 @@
         {
             this.DownloadStarted?.Invoke(URL);
 
-            HttpResponseMessage response = await _client.GetAsync(URL, cancellationToken);
-            byte[] content = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+            var response = await _client.GetAsync(URL, cancellationToken);
+            var content = await response.Content.ReadAsByteArrayAsync(cancellationToken);
             using var fs = new FileStream(Path.Combine(Environment.CurrentDirectory, fileName), FileMode.Create);
             await response.Content.CopyToAsync(fs, cancellationToken);
 
@@ -33,7 +33,7 @@
             return false;
         }
     }
-    void  IDisposable.Dispose()
+    public void Dispose()
     {
         _client.Dispose();
     }
